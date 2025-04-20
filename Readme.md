@@ -9,21 +9,22 @@ Sistema automatizado para detectar oportunidades de arbitraje en criptomonedas e
 - **Cálculo de spreads:** Pandas + Python con validación de datos  
 - **Dashboard interactivo:** Power BI con visualización de tendencias históricas  
 - **Automatización E2E:**  
-  - CI/CD con GitHub Actions  
+  - CI/CD con Jenkins
   - Orchestration con Terraform  
-  - Scheduling con Cron/Airflow  
+  - Scheduling con Cron
 
 ## 🛠️ Tech Stack  
+
 
 | Área           | Tecnologías                                                                 |  
 |----------------|-----------------------------------------------------------------------------|  
 | **Backend**    | Python (Pandas, Flask), APIs REST, Type Hints                               |  
-| **Data Pipe**  | Airflow, Cron, Validación de datos con Pydantic                            |  
+| **Data Pipe**  | Cron, Validación de datos con Pydantic                            |  
 | **Cloud**      | DigitalOcean (Droplet + Spaces S3), Docker, Terraform (IaC)                |  
-| **DevOps**     | GitHub Actions (CI/CD), Grafana + Prometheus (monitoreo), Ansible (opcional)|  
+| **DevOps**     | Jenkins (CI/CD auto-alojado), Grafana + Prometheus (monitoreo)|  
 | **Viz**        | Power BI (+ Power Automate), Alertas en Telegram/Email                      |  
 
-## 📈 Arquitectura  
+## 📈 Arquitectura
 
 ```mermaid  
 graph TD  
@@ -44,3 +45,41 @@ graph TD
         C --> I[Power BI Dashboard]  
         H --> J[Telegram Bot]  
     end  
+```
+
+
+## Estructura de carpetas hibrida ( monolito - microservicio )
+
+/arbitrage_tracker
+│
+├── /apps                          # Cada "app" será un futuro microservicio
+│   │
+│   ├── /binance_adapter           # Podría ser un container aparte luego
+│   │   ├── handler.py             # Lógica específica de Binance
+│   │   ├── db_models.py   
+|   |   ├── schemas.py              # Pydantic (valida estructura)
+|   |   └── tests/                # Tests unitarios
+|   |            ├── unit/
+│   │            └── tests/
+|   |
+│   ├── /eldorado_adapter          # Otro posible microservicio
+│   │   ├── scraper.py             # Scraping específico
+│   │   └── utils.py               # Funciones auxiliares
+│   │
+│   ├── /arbitrage_engine          # Núcleo del cálculo
+│   │   ├── calculator.py          # Lógica de spreads
+│   │   └── thresholds.py          # Reglas de oportunidades
+│   │
+│   └── /notification_service      # Alertas
+│       ├── notifier.py            # Envío a Telegram/Email
+│       └── templates/             # Plantillas de mensajes
+│
+├── /core                          # Funcionalidad compartida
+│   ├── storage.py                 # Conexión a DO Spaces
+│   └── logging.py                 # Configuración centralizada
+│
+├── /config                        # Configuración global
+│   ├── settings.py                # Variables de entorno (Pydantic)
+│   └── deploy/                    # Scripts para Docker/K8s (futuro)
+│
+└── main.py                        # Orquestación (punto de entrada)
