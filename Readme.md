@@ -58,9 +58,14 @@ graph TD
 │   │   ├── handler.py             # Lógica específica de Binance
 │   │   ├── db_models.py   
 |   |   ├── schemas.py              # Pydantic (valida estructura)
-|   |   └── tests/                # Tests unitarios
-|   |            ├── unit/
-│   │            └── tests/
+|   |   └── tests/
+|   |       ├── unit/
+|   |       │   ├── test_schemas.py     # Tests de validación pura
+|   |       │   ├── test_handler.py     # Tests de lógica (mocks)
+|   |       │   └── test_db_models.py   # Tests de DB (con fixtures)
+|   |       └── integration/
+|   |           ├── test_flow.py        # Test del flujo completo
+|   |           └── conftest.py         # Configuración compartida
 |   |
 │   ├── /eldorado_adapter          # Otro posible microservicio
 │   │   ├── scraper.py             # Scraping específico
