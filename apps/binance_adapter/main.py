@@ -1,7 +1,7 @@
 """
 Punto de entrada principal para el módulo de Binance
 """
-from handler import BinanceHandler
+from .handler import BinanceHandler
 
 def main():
     # Crear instancia del manejador de Binance

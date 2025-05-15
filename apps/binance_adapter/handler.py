@@ -1,7 +1,9 @@
 import requests
 import json
 import urllib3
-from db_handler import save_data
+import sys
+sys.path.append("C:/Users/garc2/OneDrive/Escritorio/crypto tracker")
+from .db_handler import save_data
 from datetime import datetime
 
 # Desactivar temporalmente las advertencias de solicitud insegura si estás en un entorno de prueba

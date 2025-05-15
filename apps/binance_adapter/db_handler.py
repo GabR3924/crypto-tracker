@@ -1,28 +1,56 @@
-"""
-Módulo para manejar interacciones con la base de datos
-"""
-import time
+import mysql.connector
+import os
+from dotenv import load_dotenv
 from datetime import datetime
 
+# Cargar variables de entorno
+load_dotenv()
+print("DEBUG ENV:", os.getenv("ENDPOINT"), os.getenv("MASTERPASSWORD"), os.getenv("PORT"))
+
+# Configuración de la base de datos en RDS
+DB_CONFIG = {
+    "host": os.getenv("ENDPOINT"),
+    "user": "admin",  # Reemplázalo con tu usuario de RDS
+    "password": os.getenv("MASTERPASSWORD"),
+    "database": "crypto",  # Reemplázalo con el nombre de tu DB en RDS
+    "port": int(os.getenv("PORT", 3306))  # Usa 3306 por defecto si no se encuentra
+}
+
+# Crear conexión
+def create_connection():
+    return mysql.connector.connect(**DB_CONFIG)
+
+# Crear tabla si no existe
+def init_db():
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS crypto (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            timestamp DATETIME,
+            avg_buy FLOAT,
+            avg_sell FLOAT,
+            profit_percentage FLOAT
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+# Guardar datos en la DB
 def save_data(compra, venta, ganancia):
-    """
-    Guarda los datos de compra, venta y ganancia en la base de datos
+    conn = create_connection()
+    cursor = conn.cursor()
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     
-    Args:
-        compra (float): Precio promedio de compra
-        venta (float): Precio promedio de venta
-        ganancia (float): Porcentaje de ganancia
+    query = '''
+        INSERT INTO crypto (timestamp, avg_buy, avg_sell, profit_percentage)
+        VALUES (%s, %s, %s, %s)
+    '''
+    cursor.execute(query, (timestamp, compra, venta, ganancia))
     
-    Returns:
-        bool: True si se guardó correctamente, False en caso contrario
-    """
-    timestamp = int(time.mktime(datetime.now().timetuple()))
-    
-    # Aquí iría la lógica para guardar en la base de datos
-    # Por ejemplo, usando SQLAlchemy, MongoDB, etc.
-    
-    # Simulación de guardado exitoso
-    print(f"Datos guardados en DB: Compra={round(compra, 2)}, Venta={round(venta, 2)}, "
-          f"Ganancia={round(ganancia, 2)}, Fecha={timestamp}")
-    
-    return True
+    conn.commit()
+    conn.close()
+    print(f'✅ Datos guardados en la base de datos: {timestamp}')
+
+# Inicializar la base de datos
+init_db()
