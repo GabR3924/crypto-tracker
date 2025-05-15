@@ -52,5 +52,15 @@ def save_data(compra, venta, ganancia):
     conn.close()
     print(f'✅ Datos guardados en la base de datos: {timestamp}')
 
+def get_all_data():
+    conn = create_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    cursor.execute("SELECT * FROM crypto ORDER BY timestamp DESC")
+    results = cursor.fetchall()
+    
+    conn.close()
+    return results
+
 # Inicializar la base de datos
 init_db()
