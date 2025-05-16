@@ -1,27 +1,25 @@
 import requests
-import json
+from .schemas import OfferFilter, Offer
+from typing import List
 
-def get_offers_with_headers(type_id, limit, amount, amount_currency_id, crypto_currency_id, fiat_currency_id, payment_methods, show_user_offers, show_favorite_mm_only, sort_asc):
+def get_offers_with_headers(filter_params: OfferFilter) -> List[Offer]:
     url = "https://74j6q7lg6a.execute-api.eu-west-1.amazonaws.com/stage/orderbook/public/offers/active"
 
-    # Parámeteros de la consulta
     params = {
-    'type': type_id,
-    'limit': limit,
-    'amount': amount,
-    'amountCurrencyId': amount_currency_id,
-    'sortAsc': str(sort_asc).lower(),
-    'cryptoCurrencyId': crypto_currency_id,
-    'fiatCurrencyId': fiat_currency_id,
-    'paymentMethods': payment_methods,
-    'showUserOffers': str(show_user_offers).lower(),
-    'showFavoriteMMOnly': str(show_favorite_mm_only).lower(),
-    'userId': '',
-    'lastKey': ''
-}
+        'type': filter_params.type_id,
+        'limit': filter_params.limit,
+        'amount': filter_params.amount,
+        'amountCurrencyId': filter_params.amount_currency_id,
+        'sortAsc': str(filter_params.sort_asc).lower(),
+        'cryptoCurrencyId': filter_params.crypto_currency_id,
+        'fiatCurrencyId': filter_params.fiat_currency_id,
+        'paymentMethods': filter_params.payment_methods,
+        'showUserOffers': str(filter_params.show_user_offers).lower(),
+        'showFavoriteMMOnly': str(filter_params.show_favorite_mm_only).lower(),
+        'userId': '',
+        'lastKey': ''
+    }
 
-    
-    # Headers
     headers = {
         'accept': 'application/json',
         'accept-encoding': 'gzip, deflate, br, zstd',
@@ -40,63 +38,120 @@ def get_offers_with_headers(type_id, limit, amount, amount_currency_id, crypto_c
         'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36',
     }
 
-    # Llamada a la API
     response = requests.get(url, headers=headers, params=params)
 
-    # Verificando si la petición fue exitosa
     if response.status_code == 200:
-        # Convertir la respuesta en JSON
-        offers = response.json()
+        response_data = response.json()
+        offers_data = response_data.get('data', [])
+        offers = []
+        
+        for offer_data in offers_data:
+            # Extraer datos del usuario si existe
+            user_data = offer_data.get('user', {})
+            user_id = user_data.get('id') if user_data else None
+            username = user_data.get('username') if user_data else None
+            
+            # Extraer métodos de pago (convertir a lista si es necesario)
+            payment_methods = offer_data.get('paymentMethods', [])
+            if isinstance(payment_methods, str):
+                payment_methods = [payment_methods]
+            
+            # Crear objeto Offer con los campos mapeados correctamente
+            offer = Offer(
+                offer_id=offer_data.get('offerId'),
+                user_id=user_id,
+                username=username,
+                offer_status=offer_data.get('offerStatus'),
+                offer_type=offer_data.get('offerType'),
+                crypto_currency_id=offer_data.get('cryptoCurrencyId'),
+                chain=offer_data.get('chain'),
+                fiat_currency_id=offer_data.get('fiatCurrencyId'),
+                max_limit=offer_data.get('maxLimit'),
+                min_limit=offer_data.get('minLimit'),
+                fiat_crypto_exchange=offer_data.get('fiatToCryptoExchangeRate'),
+                payment_methods=payment_methods
+            )
+            offers.append(offer)
+            
         return offers
     else:
         print(f"Error: {response.status_code}")
-        return None
+        print(f"Respuesta: {response.text}")
+        return []
 
-def display_selected_data(offers):
-    if offers and 'data' in offers:
-        for offer in offers['data']:
-            offer_id = offer.get('offerId')
-            user_id = offer['user'].get('id') if 'user' in offer else None
-            username = offer['user'].get('username') if 'user' in offer else None
-            offer_status = offer.get('offerStatus')
-            offer_type = offer.get('offerType')
+def display_selected_data(offers: List[Offer]):
+    if not offers:
+        print("No se encontraron ofertas.")
+        return
+        
+    for offer in offers:
+        print(f"Offer ID: {offer.offer_id}")
+        print(f"User ID: {offer.user_id}")
+        print(f"Username: {offer.username}")
+        print(f"Offer Status: {offer.offer_status}")
+        print(f"Offer Type: {offer.offer_type}")
+        print(f"Crypto Currency ID: {offer.crypto_currency_id}")
+        print(f"Chain: {offer.chain}")
+        print(f"Fiat Currency ID: {offer.fiat_currency_id}")
+        print(f"Max Limit: {offer.max_limit}")
+        print(f"Min Limit: {offer.min_limit}")
+        print(f"Fiat Crypto Exchange: {offer.fiat_crypto_exchange}")
+        
+        if offer.payment_methods:
+            methods_str = ', '.join(offer.payment_methods)
+            print(f"Payment Methods: {methods_str}")
+        else:
+            print("Payment Methods: None")
+            
+        print("-" * 30)
+    
+def get_buy_and_sell_offers(filter_params: OfferFilter = None):
+    """
+    Obtiene tanto ofertas de compra como de venta utilizando los mismos parámetros base.
+    Solo cambia type_id (1 para compra, 0 para venta) y sort_asc (True para compra, False para venta).
+    
+    Args:
+        filter_params: Parámetros de filtro base. Si es None, se usarán valores predeterminados.
+        
+    Returns:
+        tuple: (ofertas_compra, ofertas_venta)
+    """
+    # Si no se proporcionan parámetros, usar valores predeterminados
+    if filter_params is None:
+        filter_params = OfferFilter(
+            limit=10,
+            amount='5',
+            amount_currency_id='USD',
+            crypto_currency_id='TATUM-TRON-USDT',
+            fiat_currency_id='USD',
+            payment_methods='app_zinli_us',
+            show_user_offers=True,
+            show_favorite_mm_only=False
+        )
+    
+    # Configurar y ejecutar para Compra (type_id=1, sort_asc=True)
+    buy_filter_params = filter_params.copy(update={"type_id": 1, "sort_asc": True})
+    print("\n=== OFERTAS DE COMPRA ===")
+    buy_offers = get_offers_with_headers(buy_filter_params)
+    
+    # Configurar y ejecutar para Venta (type_id=0, sort_asc=False)
+    sell_filter_params = filter_params.copy(update={"type_id": 0, "sort_asc": False})
+    print("\n=== OFERTAS DE VENTA ===")
+    sell_offers = get_offers_with_headers(sell_filter_params)
+    
+    return buy_offers, sell_offers
 
-            crypto_currency_id = offer.get('cryptoCurrencyId')
-            chain = offer.get('chain')
-            fiat_currency_id = offer.get('fiatCurrencyId')
-            max_limit = offer.get('maxLimit')
-            min_limit = offer.get('minLimit')
-            fiat_crypto_exchange = offer.get('fiatToCryptoExchangeRate')
-            payment_methods = offer.get('paymentMethods')
+def main():
+    # Obtener ofertas de compra y venta
+    buy_offers, sell_offers = get_buy_and_sell_offers()
+    
+    # Mostrar resultados de compra
+    print(f"\nResultados de compra: {len(buy_offers)} ofertas encontradas")
+    display_selected_data(buy_offers)
+    
+    # Mostrar resultados de venta
+    print(f"\nResultados de venta: {len(sell_offers)} ofertas encontradas")
+    display_selected_data(sell_offers)
 
-            print(f"Offer ID: {offer_id}")
-            print(f"User ID: {user_id}")
-            print(f"Username: {username}")
-            print(f"Offer Status: {offer_status}")
-            print(f"Offer Type: {offer_type}")
-            print(f"Crypto Currency ID: {crypto_currency_id}")
-            print(f"Chain: {chain}")
-            print(f"Fiat Currency ID: {fiat_currency_id}")
-            print(f"Max Limit: {max_limit}")
-            print(f"Min Limit: {min_limit}")
-            print(f"fiat_crypto_exchange: {fiat_crypto_exchange}")
-            print(f"Payment Methods: {', '.join(payment_methods) if payment_methods else 'N/A'}")
-            print("-" * 30)
-    else:
-        print("No se encontraron datos relevantes.")
-
-# Ejemplo de uso con los parámetros
-type_id = 0
-limit = 10
-amount = ''
-amount_currency_id = 'USD'
-crypto_currency_id = 'TATUM-TRON-USDT'
-fiat_currency_id = 'USD'
-payment_methods = ''
-show_user_offers = True
-show_favorite_mm_only = False
-sort_asc = False
-
-offers = get_offers_with_headers(type_id, limit, amount, amount_currency_id, crypto_currency_id, fiat_currency_id, payment_methods, show_user_offers, show_favorite_mm_only, sort_asc)
-
-display_selected_data(offers)
+if __name__ == "__main__":
+    main()

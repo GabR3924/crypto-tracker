@@ -23,3 +23,6 @@ abrir vps
 
 iniciar servidor fast api
  uvicorn server:app --reload       
+
+ iniciar servidor en vps
+ uvicorn server:app --host 0.0.0.0 --port 8000
