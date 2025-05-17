@@ -98,10 +98,10 @@ class BinanceHandler:
             print(f"   Cantidad mínima: {adv['cantidad_min']} USDT")
             print(f"   Métodos de pago: {adv['metodos_pago_str']}\n")
             
-    def enviar_datos(self, compra, venta, ganancia):
+    def enviar_datos(self, compra, venta, ganancia, origen='binance'):
         """Envía datos calculados a la base de datos"""
         try:
-            save_data(compra, venta, ganancia)
+            save_data(compra, venta, ganancia, origen)
             print("✅ Datos guardados correctamente en la base de datos.")
         except Exception as e:
             print(f"❌ Error al guardar datos en la base de datos: {e}")

@@ -26,3 +26,6 @@ iniciar servidor fast api
 
  iniciar servidor en vps
  uvicorn server:app --host 0.0.0.0 --port 800
+
+llamada prueba dorado
+http://127.0.0.1:8000/eldorado/run?limit=10&amount_currency_id=USD&crypto_currency_id=TATUM-TRON-USDT&fiat_currency_id=USD&payment_methods=app_zinli_us&show_user_offers=true&show_favorite_mm_only=false

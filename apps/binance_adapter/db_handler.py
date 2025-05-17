@@ -37,21 +37,21 @@ def init_db():
     conn.close()
 
 # Guardar datos en la DB
-def save_data(compra, venta, ganancia):
+def save_data(compra, venta, ganancia, origen):
     conn = create_connection()
     cursor = conn.cursor()
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    
+
     query = '''
-        INSERT INTO crypto (timestamp, avg_buy, avg_sell, profit_percentage)
-        VALUES (%s, %s, %s, %s)
+        INSERT INTO crypto (timestamp, avg_buy, avg_sell, profit_percentage, origen)
+        VALUES (%s, %s, %s, %s, %s)
     '''
-    cursor.execute(query, (timestamp, compra, venta, ganancia))
+    cursor.execute(query, (timestamp, compra, venta, ganancia, origen))
     
     conn.commit()
     conn.close()
     print(f'✅ Datos guardados en la base de datos: {timestamp}')
-
+    
 def get_all_data():
     conn = create_connection()
     cursor = conn.cursor(dictionary=True)

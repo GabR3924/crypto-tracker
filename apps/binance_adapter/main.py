@@ -1,6 +1,3 @@
-"""
-Punto de entrada principal para el módulo de Binance
-"""
 from .handler import BinanceHandler
 
 def main(asset: str, fiat: str, cantidad_minima: float | None = None):
