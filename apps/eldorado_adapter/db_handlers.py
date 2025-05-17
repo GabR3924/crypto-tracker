@@ -44,9 +44,10 @@ def save_data(compra, venta, ganancia, origen=None):
     
     query = '''
         INSERT INTO crypto (timestamp, avg_buy, avg_sell, profit_percentage, origen)
-        VALUES (%s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s)
     '''
     cursor.execute(query, (timestamp, compra, venta, ganancia, origen))
+
     
     conn.commit()
     conn.close()
