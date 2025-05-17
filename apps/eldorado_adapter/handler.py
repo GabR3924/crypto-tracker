@@ -1,5 +1,6 @@
 import requests
 from .schemas import OfferFilter, Offer
+from .db_handlers import save_data
 from typing import List
 
 def get_offers_with_headers(filter_params: OfferFilter) -> List[Offer]:
@@ -105,14 +106,15 @@ def display_selected_data(offers: List[Offer]):
             
         print("-" * 30)
     
+
 def get_buy_and_sell_offers(filter_params: OfferFilter = None):
     """
     Obtiene tanto ofertas de compra como de venta utilizando los mismos parámetros base.
     Solo cambia type_id (1 para compra, 0 para venta) y sort_asc (True para compra, False para venta).
-    
+
     Args:
         filter_params: Parámetros de filtro base. Si es None, se usarán valores predeterminados.
-        
+
     Returns:
         tuple: (ofertas_compra, ofertas_venta)
     """
@@ -138,6 +140,22 @@ def get_buy_and_sell_offers(filter_params: OfferFilter = None):
     sell_filter_params = filter_params.copy(update={"type_id": 0, "sort_asc": False})
     print("\n=== OFERTAS DE VENTA ===")
     sell_offers = get_offers_with_headers(sell_filter_params)
+
+    # Si hay ofertas de compra y venta, calculamos el porcentaje de ganancia
+    if buy_offers and sell_offers:
+        buy_price = buy_offers[0].fiat_crypto_exchange
+        sell_price = sell_offers[0].fiat_crypto_exchange
+
+        # Calculamos el porcentaje de ganancia
+        profit_percentage = ((sell_price - buy_price) / buy_price) * 100
+
+        # Imprimir los datos antes de guardarlos
+        print(f"Datos a guardar -> Precio de compra: {buy_price}, Precio de venta: {sell_price}, Porcentaje de ganancia: {profit_percentage}%")
+
+        # Guardamos datos en la base de datos
+        save_data(buy_price, sell_price, profit_percentage)
+    else:
+        print("No hay suficientes ofertas para calcular la ganancia.")
     
     return buy_offers, sell_offers
 
@@ -152,6 +170,7 @@ def main():
     # Mostrar resultados de venta
     print(f"\nResultados de venta: {len(sell_offers)} ofertas encontradas")
     display_selected_data(sell_offers)
+
 
 if __name__ == "__main__":
     main()
