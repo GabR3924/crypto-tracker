@@ -152,8 +152,8 @@ def get_buy_and_sell_offers(filter_params: OfferFilter = None):
         # Imprimir los datos antes de guardarlos
         print(f"Datos a guardar -> Precio de compra: {buy_price}, Precio de venta: {sell_price}, Porcentaje de ganancia: {profit_percentage}%")
 
-        # Guardamos datos en la base de datos
-        save_data(buy_price, sell_price, profit_percentage)
+        # Guardamos datos en la base de datoss
+        save_data(buy_price, sell_price, profit_percentage, origen='eldorado')
     else:
         print("No hay suficientes ofertas para calcular la ganancia.")
     

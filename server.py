@@ -1,9 +1,9 @@
 from fastapi import FastAPI, Query, Body
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from apps.binance_adapter.main import main
+from apps.binance_adapter.main import main as binance_main
 from apps.binance_adapter.db_handler import get_all_data  # <-- IMPORTANTE
-from apps.eldorado_adapter.main import main
+from apps.eldorado_adapter.main import main as eldorado_main
 from apps.eldorado_adapter.schemas import OfferFilter, Offer
 from apps.eldorado_adapter.handler import get_buy_and_sell_offers, get_offers_with_headers
 from typing import List, Dict, Any
@@ -54,7 +54,7 @@ def run_binance_handler(
     # cantidad_minima: float = Query(..., description="Cantidad mínima deseada")
 ):
     try:
-        main(asset, fiat, cantidad_minima)
+        binance_main(asset, fiat, cantidad_minima)
         return {"status": "success", "message": "Binance handler ejecutado correctamente"}
     except Exception as e:
         return {"status": "error", "message": str(e)}
