@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Query, Body
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from apps.binance_adapter.main import main
 from apps.binance_adapter.db_handler import get_all_data  # <-- IMPORTANTE
 from apps.eldorado_adapter.main import main
@@ -11,6 +12,14 @@ from apps.login.handler import register_user, init_user_system
 from apps.login.db_handler import get_all_users
 
 app = FastAPI()
+
+# Si estás usando el frontend desde otro dominio/puerto
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # o especifica tu dominio frontend
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 def read_root():
