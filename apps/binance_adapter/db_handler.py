@@ -25,12 +25,13 @@ def init_db():
     conn = create_connection()
     cursor = conn.cursor()
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS crypto (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            timestamp DATETIME,
-            avg_buy FLOAT,
-            avg_sell FLOAT,
-            profit_percentage FLOAT
+            CREATE TABLE IF NOT EXISTS crypto (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                timestamp DATETIME,
+                avg_buy DECIMAL(10, 3),
+                avg_sell DECIMAL(10, 3),
+                profit_percentage DECIMAL(10, 3),
+                origen VARCHAR(255)
         )
     ''')
     conn.commit()

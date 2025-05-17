@@ -2,6 +2,8 @@ import requests
 from .schemas import OfferFilter, Offer
 from .db_handlers import save_data
 from typing import List
+from decimal import Decimal, ROUND_DOWN
+
 
 def get_offers_with_headers(filter_params: OfferFilter) -> List[Offer]:
     url = "https://74j6q7lg6a.execute-api.eu-west-1.amazonaws.com/stage/orderbook/public/offers/active"
@@ -143,11 +145,12 @@ def get_buy_and_sell_offers(filter_params: OfferFilter = None):
 
     # Si hay ofertas de compra y venta, calculamos el porcentaje de ganancia
     if buy_offers and sell_offers:
-        buy_price = buy_offers[0].fiat_crypto_exchange
-        sell_price = sell_offers[0].fiat_crypto_exchange
 
+        buy_price = Decimal(str(buy_offers[0].fiat_crypto_exchange)).quantize(Decimal("0.001"), rounding=ROUND_DOWN)
+        sell_price = Decimal(str(sell_offers[0].fiat_crypto_exchange)).quantize(Decimal("0.001"), rounding=ROUND_DOWN)
+            
         # Calculamos el porcentaje de ganancia
-        profit_percentage = ((sell_price - buy_price) / buy_price) * 100
+        profit_percentage = ((sell_price - buy_price) / buy_price * 100).quantize(Decimal("0.01"), rounding=ROUND_DOWN)
 
         # Imprimir los datos antes de guardarlos
         print(f"Datos a guardar -> Precio de compra: {buy_price}, Precio de venta: {sell_price}, Porcentaje de ganancia: {profit_percentage}%")
