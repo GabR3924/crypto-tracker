@@ -1,18 +1,40 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, Body
 from fastapi.responses import JSONResponse
 from apps.binance_adapter.main import main
 from apps.binance_adapter.db_handler import get_all_data  # <-- IMPORTANTE
 from apps.eldorado_adapter.main import main
 from apps.eldorado_adapter.schemas import OfferFilter, Offer
 from apps.eldorado_adapter.handler import get_buy_and_sell_offers, get_offers_with_headers
-
 from typing import List, Dict, Any
+from apps.login.schemas import User  # Modelo Pydantic
+from apps.login.handler import register_user, init_user_system
+from apps.login.db_handler import get_all_users
 
 app = FastAPI()
 
 @app.get("/")
 def read_root():
     return {"message": "FastAPI está funcionando correctamente"}
+
+@app.post("/user/register")
+def register_user_route(user: User = Body(...)):
+    try:
+        success = register_user(user)
+        if success:
+            return {"status": "success", "message": "Usuario registrado correctamente"}
+        else:
+            return {"status": "error", "message": "El correo ya está registrado"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@app.get("/user/all")
+def get_all_users_route():
+    try:
+        users = get_all_users()
+        return {"status": "success", "data": users}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
 
 @app.get("/binance/run")
 def run_binance_handler(

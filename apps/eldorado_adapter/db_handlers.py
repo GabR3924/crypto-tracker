@@ -5,7 +5,7 @@ from datetime import datetime
 
 # Cargar variables de entorno
 load_dotenv()
-print("DEBUG ENV:", os.getenv("ENDPOINT"), os.getenv("MASTERPASSWORD"), os.getenv("PORT"))
+# print("DEBUG ENV:", os.getenv("ENDPOINT"), os.getenv("MASTERPASSWORD"), os.getenv("PORT"))
 
 # Configuración de la base de datos en RDS
 DB_CONFIG = {
