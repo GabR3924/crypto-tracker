@@ -1,6 +1,7 @@
 import requests
 import json
 import urllib3
+
 from decimal import Decimal
 import sys
 sys.path.append("C:/Users/garc2/OneDrive/Escritorio/crypto tracker")
@@ -46,8 +47,12 @@ def obtener_anuncios(asset, fiat, trade_type, cantidad_min_deseada=None):
                     # Extraer información relevante
                     precio = Decimal(advert_info.get("price", "0")).quantize(Decimal('0.001'))
                     cantidad_min = float(advert_info.get("minSingleTransAmount", 0))
-                    metodos_pago = [payment.get("tradeMethodName", "") for payment in advert_info.get("tradeMethods", [])]
+                    metodos_pago = [
+                        str(payment.get("tradeMethodName") or "") 
+                        for payment in advert_info.get("tradeMethods", [])
+                    ]
                     metodos_pago_str = ", ".join(metodos_pago)
+
                     
                     # Filtrar solo los anuncios si cantidad_min_deseada tiene valor
                     if cantidad_min_deseada is None or cantidad_min == cantidad_min_deseada:
