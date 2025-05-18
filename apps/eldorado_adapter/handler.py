@@ -150,7 +150,7 @@ def get_buy_and_sell_offers(filter_params: OfferFilter = None):
         sell_price = Decimal(str(sell_offers[0].fiat_crypto_exchange)).quantize(Decimal("0.001"), rounding=ROUND_DOWN)
             
         # Calculamos el porcentaje de ganancia
-        profit_percentage = ((buy_price - sell_price) / buy_price * 100).quantize(Decimal("0.01"), rounding=ROUND_DOWN)
+        profit_percentage = (( sell_price - buy_price) / buy_price * 100).quantize(Decimal("0.01"), rounding=ROUND_DOWN)
 
         # Imprimir los datos antes de guardarlos
         print(f"Datos a guardar -> Precio de compra: {buy_price}, Precio de venta: {sell_price}, Porcentaje de ganancia: {profit_percentage}%")
