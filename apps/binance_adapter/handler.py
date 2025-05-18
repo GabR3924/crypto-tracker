@@ -23,7 +23,7 @@ def obtener_anuncios(asset, fiat, trade_type, cantidad_min_deseada=None):
             "fiat": fiat,
             "tradeType": trade_type,
             "page": page,
-            "rows": 20,
+            "rows": 5,
         }
 
         headers = {
