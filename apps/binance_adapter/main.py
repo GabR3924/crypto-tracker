@@ -20,7 +20,7 @@ def main(asset: str, fiat: str, cantidad_minima: float | None = None):
         precio_venta_real = None
 
     if precio_compra_real is not None and precio_venta_real is not None:
-        ganancia = ((precio_venta_real - precio_compra_real) / precio_compra_real) * 100
+        ganancia = ((precio_compra_real - precio_venta_real ) / precio_compra_real) * 100
         binance_handler.enviar_datos(precio_compra_real, precio_venta_real, ganancia)
     else:
         print("No se pudo calcular la ganancia debido a la ausencia de datos adecuados para compra o venta.")
