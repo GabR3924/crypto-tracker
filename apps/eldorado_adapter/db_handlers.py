@@ -57,7 +57,7 @@ def get_all_data():
     conn = create_connection()
     cursor = conn.cursor(dictionary=True)
     
-    cursor.execute("SELECT * FROM crypto ORDER BY timestamp DESC")
+    cursor.execute("SELECT * FROM crypto ORDER BY id DESC")
     results = cursor.fetchall()
     
     conn.close()

@@ -57,7 +57,8 @@ def get_all_data():
     conn = create_connection()
     cursor = conn.cursor(dictionary=True)
     
-    cursor.execute("SELECT * FROM crypto ORDER BY timestamp DESC")
+      # Usar id DESC para obtener el registro más reciente basado en la inserción
+    cursor.execute("SELECT * FROM crypto ORDER BY id DESC")
     results = cursor.fetchall()
     
     conn.close()
