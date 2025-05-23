@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional, List
+from typing import List, Dict, Any, Optional
 from datetime import datetime
 from decimal import Decimal
 
@@ -63,3 +63,8 @@ class SellTransactionResponse(BaseModel):
 class PendingBuysResponse(BaseModel):
     pending_buys: List[BuyTransactionResponse]
     total_available_usdt: float
+
+class CycleTransactionsResponse(BaseModel):
+    cycle_id: int
+    transactions: List[Dict[str, Any]]
+    total_transactions: int

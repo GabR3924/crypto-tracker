@@ -7,6 +7,7 @@ from apps.arbitrage_engine.transaction_models import (
     BuyTransactionResponse,
     SellTransactionResponse,
     PendingBuysResponse,
+    CycleTransactionsResponse,
     LinkedBuy
 )
 
@@ -320,3 +321,90 @@ class TransactionHandler:
         finally:
             if cursor:
                 cursor.close()
+    
+    async def get_cycle_transactions(self, cycle_id: int) -> CycleTransactionsResponse:
+        """Obtener todas las transacciones de un ciclo"""
+        cursor = None
+        try:
+            cursor = self.db.cursor(dictionary=True)
+            
+            # Obtener todas las transacciones del ciclo
+            query = """
+                SELECT * FROM transactions 
+                WHERE cycle_id = %s 
+                ORDER BY transaction_date ASC
+            """
+            
+            cursor.execute(query, (cycle_id,))
+            rows = cursor.fetchall()
+            
+            transactions = []
+            
+            for row in rows:
+                if row['transaction_type'] == 'compra':
+                    # Transacción de compra
+                    transaction = {
+                        "id": row['id'],
+                        "cycle_id": row['cycle_id'],
+                        "type": "compra",
+                        "date": row['transaction_date'].strftime("%Y-%m-%d %H:%M:%S"),
+                        "usdtDeseados": float(row['usdt_desired']),
+                        "comision": float(row['commission_rate']),
+                        "precioCompra": float(row['purchase_price']),
+                        "usdtAPagar": float(row['usdt_to_pay']),
+                        "inversionTotalBs": float(row['total_investment_bs']),
+                        "precioRealCompra": float(row['real_purchase_price']),
+                        "status": row['buy_status']
+                    }
+                else:
+                    # Transacción de venta
+                    # Obtener las compras vinculadas
+                    link_query = """
+                        SELECT tl.linked_amount, tl.buy_price, tl.buy_transaction_id
+                        FROM transaction_links tl
+                        WHERE tl.sell_transaction_id = %s
+                    """
+                    cursor.execute(link_query, (row['id'],))
+                    links = cursor.fetchall()
+                    
+                    linked_buys = [
+                        {
+                            "buyId": link['buy_transaction_id'],
+                            "amount": float(link['linked_amount']),
+                            "buyPrice": float(link['buy_price'])
+                        }
+                        for link in links
+                    ]
+                    
+                    transaction = {
+                        "id": row['id'],
+                        "cycle_id": row['cycle_id'],
+                        "type": "venta",
+                        "date": row['transaction_date'].strftime("%Y-%m-%d %H:%M:%S"),
+                        "mejorPrecioMercado": float(row['market_best_price']),
+                        "ajusteCompetitivo": float(row['competitive_adjustment']),
+                        "precioVenta": float(row['sale_price']),
+                        "usdtVendidos": float(row['usdt_sold']),
+                        "gananciaBs": float(row['profit_bs']),
+                        "gananciaPorcentaje": float(row['profit_percentage']),
+                        "linkedBuys": linked_buys
+                    }
+                
+                transactions.append(transaction)
+            
+            return CycleTransactionsResponse(
+                cycle_id=cycle_id,
+                transactions=transactions,
+                total_transactions=len(transactions)
+            )
+            
+        except Error as e:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Error al obtener las transacciones del ciclo: {str(e)}"
+            )
+        finally:
+            if cursor:  
+                cursor.close()
+
+        

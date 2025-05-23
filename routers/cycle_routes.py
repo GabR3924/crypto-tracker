@@ -12,7 +12,8 @@ from apps.arbitrage_engine.transaction_models import (
     CreateSellTransactionRequest,
     BuyTransactionResponse,
     SellTransactionResponse,
-    PendingBuysResponse
+    PendingBuysResponse,
+    CycleTransactionsResponse
 )
 from apps.arbitrage_engine.database import get_database
 
@@ -96,3 +97,11 @@ async def get_pending_buys(
 ):
     """Obtener compras pendientes de un ciclo"""
     return await handler.get_pending_buys(cycle_id)
+
+@router.get("/cycles/{cycle_id}/transactions")
+async def get_cycle_transactions_endpoint(
+    cycle_id: int,
+    handler: TransactionHandler = Depends(get_transaction_handler)
+):
+    """Obtener compras pendientes de un ciclo"""
+    return await handler.get_cycle_transactions(cycle_id)
