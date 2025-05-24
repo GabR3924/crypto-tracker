@@ -160,12 +160,12 @@ class TransactionHandler:
                     detail="No hay suficientes USDT disponibles para vender"
                 )
             
-            # Insertar la transacción de venta
+            # Insertar la transacción de venta (AGREGADO commission_rate)
             sell_insert_query = """
                 INSERT INTO transactions (
                     cycle_id, transaction_type, market_best_price, competitive_adjustment,
-                    sale_price, usdt_sold, profit_bs, profit_percentage
-                ) VALUES (%s, 'venta', %s, %s, %s, %s, %s, %s)
+                    sale_price, usdt_sold, profit_bs, profit_percentage, commission_rate
+                ) VALUES (%s, 'venta', %s, %s, %s, %s, %s, %s, %s)
             """
             
             cursor.execute(
@@ -177,7 +177,8 @@ class TransactionHandler:
                     transaction_data.sale_price,
                     transaction_data.usdt_sold,
                     transaction_data.profit_bs,
-                    transaction_data.profit_percentage
+                    transaction_data.profit_percentage,
+                    transaction_data.commission_rate  # NUEVO CAMPO
                 )
             )
             
@@ -215,13 +216,21 @@ class TransactionHandler:
                         (link['buy_id'],)
                     )
                 else:
+                    
+                    from decimal import Decimal, ROUND_HALF_UP
+
                     # Actualizar cantidades pendientes
-                    original_usdt = float(buy_transaction['usdt_desired'])
-                    ratio = new_usdt_desired / original_usdt
+                    original_usdt = Decimal(str(buy_transaction['usdt_desired']))
+                    new_usdt_desired_decimal = Decimal(str(new_usdt_desired))
+                    ratio = new_usdt_desired_decimal / original_usdt
                     
-                    new_investment = float(buy_transaction['total_investment_bs']) * ratio
-                    new_usdt_to_pay = float(buy_transaction['usdt_to_pay']) * ratio
-                    
+                   
+                    new_investment = (Decimal(str(buy_transaction['total_investment_bs'])) * ratio).quantize(
+                        Decimal('0.01'), rounding=ROUND_HALF_UP
+                    )
+                    new_usdt_to_pay = (Decimal(str(buy_transaction['usdt_to_pay'])) * ratio).quantize(
+                        Decimal('0.00000001'), rounding=ROUND_HALF_UP
+                    ) 
                     cursor.execute(
                         """UPDATE transactions 
                            SET usdt_desired = %s, total_investment_bs = %s, 
@@ -257,6 +266,7 @@ class TransactionHandler:
                 usdt_sold=float(sell_row['usdt_sold']),
                 profit_bs=float(sell_row['profit_bs']) if sell_row['profit_bs'] else None,
                 profit_percentage=float(sell_row['profit_percentage']) if sell_row['profit_percentage'] else None,
+                commission_rate=float(sell_row['commission_rate']) if sell_row['commission_rate'] else None,  # AGREGADO EN RESPONSE
                 transaction_date=sell_row['transaction_date'],
                 linked_buys=linked_buys_response
             )

@@ -13,8 +13,9 @@ class CreateBuyTransactionRequest(BaseModel):
 
 class CreateSellTransactionRequest(BaseModel):
     market_best_price: float = Field(..., gt=0, description="Mejor precio del mercado")
-    competitive_adjustment: Optional[float] = Field(None, description="Ajuste competitivo")
-    sale_price: float = Field(..., gt=0, description="Precio de venta")
+    competitive_adjustment: Optional[float] = Field(0, ge=0, le=1, description="Ajuste competitivo (0-1)")
+    commission_rate: float = Field(..., ge=0, le=1, description="Tasa de comisión para la venta (0-1)")
+    sale_price: float = Field(..., gt=0, description="Precio de venta después de comisión")
     usdt_sold: float = Field(..., gt=0, description="USDT vendidos")
     profit_bs: Optional[float] = Field(None, description="Ganancia en Bs")
     profit_percentage: Optional[float] = Field(None, description="Porcentaje de ganancia")
@@ -48,6 +49,7 @@ class SellTransactionResponse(BaseModel):
     transaction_type: str
     market_best_price: float
     competitive_adjustment: Optional[float]
+    commission_rate: float  # Nuevo campo
     sale_price: float
     usdt_sold: float
     profit_bs: Optional[float]

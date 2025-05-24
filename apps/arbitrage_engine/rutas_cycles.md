@@ -38,3 +38,6 @@ Content-Type: application/json
 }
 Obtener compras pendientes
 GET http://localhost:8000/api/cycles/1/pending-buys
+
+get cycle transactions:
+/cycles/cycles/${cycleId}/transactions
