@@ -148,20 +148,22 @@ def get_buy_and_sell_offers(filter_params: OfferFilter = None):
 
         buy_price = Decimal(str(buy_offers[0].fiat_crypto_exchange)).quantize(Decimal("0.001"), rounding=ROUND_DOWN)
         sell_price = Decimal(str(sell_offers[0].fiat_crypto_exchange)).quantize(Decimal("0.001"), rounding=ROUND_DOWN)
+        
+        # Obtener el payment method de los parámetros de filtro
+        payment_method = filter_params.payment_methods
             
         # Calculamos el porcentaje de ganancia
         profit_percentage = (( sell_price - buy_price) / buy_price * 100).quantize(Decimal("0.01"), rounding=ROUND_DOWN)
 
         # Imprimir los datos antes de guardarlos
-        print(f"Datos a guardar -> Precio de compra: {buy_price}, Precio de venta: {sell_price}, Porcentaje de ganancia: {profit_percentage}%")
+        print(f"Datos a guardar -> Precio de compra: {buy_price}, Precio de venta: {sell_price}, Porcentaje de ganancia: {profit_percentage}%, Payment Method: {payment_method}")
 
-        # Guardamos datos en la base de datoss
-        save_data(buy_price, sell_price, profit_percentage, origen='eldorado')
+        # Guardamos datos en la base de datos incluyendo el payment method
+        save_data(buy_price, sell_price, profit_percentage, payment_method, origen='eldorado')
     else:
         print("No hay suficientes ofertas para calcular la ganancia.")
     
     return buy_offers, sell_offers
-
 def main():
     # Obtener ofertas de compra y venta
     buy_offers, sell_offers = get_buy_and_sell_offers()

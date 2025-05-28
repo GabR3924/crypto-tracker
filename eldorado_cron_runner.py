@@ -19,16 +19,16 @@ markets = [
         "show_user_offers": True,
         "show_favorite_mm_only": False
     },
-    #  {
-    #     "limit": 10,
-    #     "amount": '',
-    #     "amount_currency_id": "TATUM-TRON-USDT",
-    #     "crypto_currency_id": "TATUM-TRON-USDT",
-    #     "fiat_currency_id": "VES",
-    #     "payment_methods": 'bank_banesco',
-    #     "show_user_offers": True,
-    #     "show_favorite_mm_only": False
-    # },
+     {
+        "limit": 10,
+        "amount": '',
+        "amount_currency_id": "TATUM-TRON-USDT",
+        "crypto_currency_id": "TATUM-TRON-USDT",
+        "fiat_currency_id": "VES",
+        "payment_methods": 'bank_banesco',
+        "show_user_offers": True,
+        "show_favorite_mm_only": False
+    },
     # Puedes agregar más configuraciones si quieres comparar mercados
 ]
 
