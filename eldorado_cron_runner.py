@@ -15,7 +15,17 @@ markets = [
         "amount_currency_id": "USD",
         "crypto_currency_id": "TATUM-TRON-USDT",
         "fiat_currency_id": "USD",
-        "payment_methods": '',
+        "payment_methods": 'app_zinli_us',
+        "show_user_offers": True,
+        "show_favorite_mm_only": False
+    },
+     {
+        "limit": 10,
+        "amount": '',
+        "amount_currency_id": "TATUM-TRON-USDT",
+        "crypto_currency_id": "TATUM-TRON-USDT",
+        "fiat_currency_id": "VES",
+        "payment_methods": 'bank_banesco',
         "show_user_offers": True,
         "show_favorite_mm_only": False
     },
