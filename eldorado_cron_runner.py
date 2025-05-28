@@ -10,7 +10,7 @@ logging.basicConfig(
 # Puedes definir diferentes combinaciones de parámetros a probar
 markets = [
     {
-        "limit": 10,
+        "limit": 50,
         "amount": '',
         "amount_currency_id": "USD",
         "crypto_currency_id": "TATUM-TRON-USDT",
