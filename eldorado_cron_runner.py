@@ -21,7 +21,7 @@ markets = [
     },
      {
         "limit": 10,
-        "amount": '',
+        "amount": '30',
         "amount_currency_id": "TATUM-TRON-USDT",
         "crypto_currency_id": "TATUM-TRON-USDT",
         "fiat_currency_id": "VES",
